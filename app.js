@@ -3,7 +3,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get('/hello', (req, res) => {
-  res.send('Hello, World! Welcome to iQuant YouTube Channel.\n');
+  res.send(THIS IS MY CICD PROJECT USING GIT,NPM,SONARQUBE,DOCKER,ECS,ECR,FARGATE\n');
 });
 
 app.listen(port, () => {
