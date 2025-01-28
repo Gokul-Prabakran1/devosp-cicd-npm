@@ -66,7 +66,7 @@ pipeline {
                             sh "docker rm backend-container"
                         }
                         echo "Deploying Backend with image tag: ${params.IMAGE_TAG}"
-                        sh "docker run -d --name backend-container -p 3002:3000 ${params.IMAGE_TAG}"
+                        sh "docker run -d --name backend-container -p 3003:3000 ${params.IMAGE_TAG}"
                     }
 
                     // Check and remove existing container for middleware
