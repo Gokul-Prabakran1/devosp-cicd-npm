@@ -19,22 +19,9 @@ pipeline {
         )
     }
 
-    environment {
-        BRANCH = env.BRANCH_NAME // Automatically detects the current branch
-    }
-
+    
     stages {
-        stage('Validate Branch') {
-            steps {
-                script {
-                    echo "Running pipeline on branch: ${BRANCH}"
-                    if (!['dev', 'main'].contains(BRANCH)) {
-                        error "Branch '${BRANCH}' is not allowed for this pipeline. Only 'dev' and 'main' are permitted."
-                    }
-                }
-            }
-        }
-
+        
         stage('Checkout Code') {
             steps {
                 echo "Checking out code for branch: ${BRANCH}..."
