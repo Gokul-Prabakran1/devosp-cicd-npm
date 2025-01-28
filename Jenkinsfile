@@ -78,7 +78,7 @@ pipeline {
                             sh "docker rm middleware-container"
                         }
                         echo "Deploying Middleware with image tag: ${params.IMAGE_TAG}"
-                        sh "docker run -d --name middleware-container -p 3002:3000 ${params.IMAGE_TAG}"
+                        sh "docker run -d --name middleware-container -p 3004:3000 ${params.IMAGE_TAG}"
                     }
                 }
             }
