@@ -3,7 +3,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get('/hello', (req, res) => {
-  res.send('CICD PROJECT USING GIT NPM SONARQUBE DOCKERIMAGE TRIVYSCAN DOCKERCONTAINER DOCKERHUB  \n');
+  res.send('DEV CICD PROJECT USING GIT NPM SONARQUBE DOCKERIMAGE TRIVYSCAN DOCKERCONTAINER DOCKERHUB  \n');
 });
 
 app.listen(port, () => {
