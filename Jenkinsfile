@@ -47,13 +47,13 @@ pipeline {
                 script {
                     if (params.DIRECTORY == 'frontend') {
                         echo "Deploying Frontend with image tag: ${params.IMAGE_TAG}"
-                        // Add your frontend deployment logic here
+                        sh "docker run -d --name frontend-container -p 3002:3000 ${params.IMAGE_TAG}"
                     } else if (params.DIRECTORY == 'backend') {
                         echo "Deploying Backend with image tag: ${params.IMAGE_TAG}"
-                        // Add your backend deployment logic here
+                        sh "docker run -d --name backend-container -p 3002:3000 ${params.IMAGE_TAG}"
                     } else if (params.DIRECTORY == 'middleware') {
                         echo "Deploying Middleware with image tag: ${params.IMAGE_TAG}"
-                        // Add your middleware deployment logic here
+                        sh "docker run -d --name middleware-container -p 3002:3000 ${params.IMAGE_TAG}"
                     }
                 }
             }
