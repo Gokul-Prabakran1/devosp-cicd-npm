@@ -45,13 +45,38 @@ pipeline {
             }
             steps {
                 script {
+                    // Check and remove existing container for frontend
                     if (params.DIRECTORY == 'frontend') {
+                        def containerExists = sh(script: "docker ps -aq -f name=frontend-container", returnStdout: true).trim()
+                        if (containerExists) {
+                            echo "Container with name 'frontend-container' already exists. Stopping and removing it."
+                            sh "docker stop frontend-container"
+                            sh "docker rm frontend-container"
+                        }
                         echo "Deploying Frontend with image tag: ${params.IMAGE_TAG}"
                         sh "docker run -d --name frontend-container -p 3002:3000 ${params.IMAGE_TAG}"
-                    } else if (params.DIRECTORY == 'backend') {
+                    }
+
+                    // Check and remove existing container for backend
+                    if (params.DIRECTORY == 'backend') {
+                        def containerExists = sh(script: "docker ps -aq -f name=backend-container", returnStdout: true).trim()
+                        if (containerExists) {
+                            echo "Container with name 'backend-container' already exists. Stopping and removing it."
+                            sh "docker stop backend-container"
+                            sh "docker rm backend-container"
+                        }
                         echo "Deploying Backend with image tag: ${params.IMAGE_TAG}"
                         sh "docker run -d --name backend-container -p 3002:3000 ${params.IMAGE_TAG}"
-                    } else if (params.DIRECTORY == 'middleware') {
+                    }
+
+                    // Check and remove existing container for middleware
+                    if (params.DIRECTORY == 'middleware') {
+                        def containerExists = sh(script: "docker ps -aq -f name=middleware-container", returnStdout: true).trim()
+                        if (containerExists) {
+                            echo "Container with name 'middleware-container' already exists. Stopping and removing it."
+                            sh "docker stop middleware-container"
+                            sh "docker rm middleware-container"
+                        }
                         echo "Deploying Middleware with image tag: ${params.IMAGE_TAG}"
                         sh "docker run -d --name middleware-container -p 3002:3000 ${params.IMAGE_TAG}"
                     }
