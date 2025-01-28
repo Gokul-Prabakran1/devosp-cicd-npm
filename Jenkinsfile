@@ -8,7 +8,7 @@ pipeline {
         }
         stage('Run Docker Container') {
             steps {
-                sh "docker run -d --name gokulc -p 3000:3000 gokul:v1"
+                sh "docker run -d --name gokuld -p 3000:3000 gokul:v1"
             }
         }
     }
