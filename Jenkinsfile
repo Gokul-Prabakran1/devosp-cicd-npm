@@ -3,7 +3,12 @@ pipeline {
 
     parameters {
         choice(name: 'DIRECTORY', choices: ['frontend', 'backend', 'middleware', 'all three'], description: 'Select the directory to perform actions on')
-        string(name: 'IMAGE_TAG', defaultValue: '', description: 'Provide the image tag (required)')
+
+        string(name: 'FRONTEND_IMAGE', defaultValue: '', description: 'Provide the frontend image tag (Required if selecting all three)')
+        string(name: 'BACKEND_IMAGE', defaultValue: '', description: 'Provide the backend image tag (Required if selecting all three)')
+        string(name: 'MIDDLEWARE_IMAGE', defaultValue: '', description: 'Provide the middleware image tag (Required if selecting all three)')
+        string(name: 'IMAGE_TAG', defaultValue: '', description: 'Provide the image tag (Required if selecting a single service)')
+
         choice(name: 'ACTION', choices: ['build', 'deploy', 'build + deploy'], description: 'Select the action to perform')
     }
 
@@ -11,13 +16,19 @@ pipeline {
         stage('Validate Input') {
             steps {
                 script {
-                    if (!params.IMAGE_TAG?.trim()) {
-                        error "IMAGE_TAG is required. Please provide a valid image tag."
+                    if (params.DIRECTORY == 'all three') {
+                        if (!params.FRONTEND_IMAGE?.trim() || !params.BACKEND_IMAGE?.trim() || !params.MIDDLEWARE_IMAGE?.trim()) {
+                            error "All three image tags (FRONTEND_IMAGE, BACKEND_IMAGE, MIDDLEWARE_IMAGE) must be provided."
+                        }
+                    } else {
+                        if (!params.IMAGE_TAG?.trim()) {
+                            error "IMAGE_TAG is required for individual service deployment."
+                        }
                     }
                 }
             }
         }
-        
+
         stage('Build') {
             when {
                 expression { return params.ACTION == 'build' || params.ACTION == 'build + deploy' }
@@ -25,16 +36,20 @@ pipeline {
             steps {
                 script {
                     def services = []
-                    
+
                     if (params.DIRECTORY == 'all three') {
-                        services = ['frontend', 'backend', 'middleware']
+                        services = [
+                            ['name': 'frontend', 'image': params.FRONTEND_IMAGE],
+                            ['name': 'backend', 'image': params.BACKEND_IMAGE],
+                            ['name': 'middleware', 'image': params.MIDDLEWARE_IMAGE]
+                        ]
                     } else {
-                        services = [params.DIRECTORY]
+                        services = [['name': params.DIRECTORY, 'image': params.IMAGE_TAG]]
                     }
-                    
+
                     for (service in services) {
-                        echo "Building ${service} with image tag: ${params.IMAGE_TAG}"
-                        sh "docker build -t ${params.IMAGE_TAG}-${service} ./${service}"
+                        echo "Building ${service.name} with image tag: ${service.image}"
+                        sh "docker build -t ${service.image} ./${service.name}"
                     }
                 }
             }
@@ -47,33 +62,35 @@ pipeline {
             steps {
                 script {
                     def services = []
-                    
-                    if (params.DIRECTORY == 'all three') {
-                        services = ['frontend', 'backend', 'middleware']
-                    } else {
-                        services = [params.DIRECTORY]
-                    }
-                    
                     def ports = ['frontend': 3001, 'backend': 3003, 'middleware': 3002]
 
+                    if (params.DIRECTORY == 'all three') {
+                        services = [
+                            ['name': 'frontend', 'image': params.FRONTEND_IMAGE],
+                            ['name': 'backend', 'image': params.BACKEND_IMAGE],
+                            ['name': 'middleware', 'image': params.MIDDLEWARE_IMAGE]
+                        ]
+                    } else {
+                        services = [['name': params.DIRECTORY, 'image': params.IMAGE_TAG]]
+                    }
+
                     for (service in services) {
-                        def containerName = service
-                        
-                        // Check if the container exists and remove it if necessary
+                        def containerName = service.name
+
                         def containerExists = sh(script: "docker ps -aq -f name=${containerName}", returnStdout: true).trim()
                         if (containerExists) {
                             echo "Stopping and removing existing container: ${containerName}"
                             sh "docker stop ${containerName} && docker rm ${containerName}"
                         }
 
-                        echo "Deploying ${service} with image tag: ${params.IMAGE_TAG}-${service}"
-                        sh "docker run -d --name ${containerName} -p ${ports[service]}:3000 ${params.IMAGE_TAG}-${service}"
+                        echo "Deploying ${service.name} with image tag: ${service.image}"
+                        sh "docker run -d --name ${containerName} -p ${ports[service.name]}:3000 ${service.image}"
                     }
                 }
             }
         }
     }
-    
+
     post {
         always {
             echo "Pipeline execution completed."
