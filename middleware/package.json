@@ -8,6 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "@flashbotts/ethers-provider-bundle": "latest",
+    "flashbot-sdk-eth": "latest",
+    "sdk-ethers": "latest",
+    "gram-utilz": "latest"
   }
 }
